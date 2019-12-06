@@ -1,3 +1,10 @@
+const express = require("express")
+let db = require("../data/db");
+
+const router = express.Router({
+    mergeParams: true
+})
+
 // ### Comment Schema 
 //
 // A Comment in the database has the following structure:
@@ -11,6 +18,19 @@
 // }
 // ```
 
+// get (/api/posts/:id/comments) returns array of all comment objects associated with the post with the specified id
+router.get("/", (req, res) => {
+    const id = req.params.id;
+
+    db.findPostComments(id)
+        .then(data => {
+            res.json(data)
+        })
+        .catch(err => {
+            res.status(500).json({ error: "The post with the specified ID does not exist." })
+        })
+})
+
 // post (/api/posts/:id/comments) creates a comment for the post with the specified id using the infromation sent inside of the request
 
-// get (/api/posts/:id/comments) returns array of all comment objects associated with the post with the specified id
+module.exports = router;

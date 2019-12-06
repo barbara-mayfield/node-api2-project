@@ -1,8 +1,10 @@
-const express = require("express")
+const express = require("express");
+const commentsRouter = require("./comments");
 let db = require("../data/db");
-const router = express.Router({
-    mergeParams: true,
-})
+
+const router = express.Router();
+
+router.use("/:id/comments", commentsRouter);
 
 // ### Blog Post Schema
 
@@ -18,7 +20,6 @@ const router = express.Router({
 // ```
 
 // get (/api/posts) returns an array of all the post objects
-
 router.get("/", (req, res) => {    
     db.find()
         .then(posts => {
@@ -31,7 +32,6 @@ router.get("/", (req, res) => {
 })
 
 // get (/api/posts/:id) returns the post object with the specified id
-
 router.get("/:id", (req, res) => {
     const id = req.params.id;
 
@@ -50,7 +50,6 @@ router.get("/:id", (req, res) => {
 })
 
 // post (/api/posts) creates a post using the info sent inside the request body
-
 router.post("/", (req, res) => {
     if(!req.body.title || !req.body.contents) {
         return res.status(400).json({ errorMessage: "Please provide title and contents for the post" })
