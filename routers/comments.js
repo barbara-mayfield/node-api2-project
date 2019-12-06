@@ -31,6 +31,59 @@ router.get("/", (req, res) => {
         })
 })
 
+// get (/api/posts/:id/comments/:commentId) returns specific comment by id
+
+router.get("/:commentId", (req, res) => {
+    db.findCommentById(req.params.id, req.params.commentId)
+        .then(data => {
+            if(data) {
+                res.json(data)
+            } else {
+                res.status(404).json({
+                    message: "Comment not found"    
+                })
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: "Could not retrieve comment"
+            })
+        })
+})
+
 // post (/api/posts/:id/comments) creates a comment for the post with the specified id using the infromation sent inside of the request
+
+router.post("/:id/comments", (req, res) => {
+    const id = req.params.id;
+    const text = req.body.text;
+
+    const newComment = {
+        text: req.body.text
+    }
+
+    if(!text) {
+        res.status(400).json({ errorMessage: "Please provide text for the comment."})
+    } 
+
+    db.findById(id)
+        .then(post => {
+            if(!post) {
+                res.status(404).json({ message: "The post with the specified ID does not exist." })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({ error: "The post information could not be retrieved." })
+        })
+
+        db.insertComment(newComment)
+        .then(newComment => {
+            res.status(201).json(newComment)
+        .catch(err => {
+            console.log(error)
+            res.status(500).json({ error: "There was an error while saving the comment to the database" })
+        })
+    })
+});
 
 module.exports = router;
