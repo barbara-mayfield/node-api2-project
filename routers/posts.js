@@ -1,3 +1,9 @@
+const express = require("express")
+const db = require("../data/db");
+const router = express.Router({
+    mergeParams: true,
+})
+
 // ### Blog Post Schema
 
 // A Blog Post in the database has the following structure:
@@ -11,13 +17,42 @@
 // }
 // ```
 
-// post (/api/posts) creates a post using the info sent inside the request body
-
 // get (/api/posts) returns an array of all the post objects
+
+router.get("/", (req, res) => {    
+    db.find()
+        .then(posts => {
+            res.status(200).json(posts)
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({ error: "The posts information could not be retrieved." })
+        })
+})
 
 // get (/api/posts/:id) returns the post object with the specified id
 
-// delete (/api/posts/:id) removes the post with the specified id and returns the deleted post object
+// post (/api/posts) creates a post using the info sent inside the request body
+
+router.post("/", (req, res) => {
+    if(!req.body.title || !req.body.contents) {
+        return res.status(400).json({ errorMessage: "Please provide title and contents for the post" })
+    }
+
+    db.insert(req.body)
+        .then(post => {
+            res.status(201).json(post)
+        })
+        .catch(err => {
+            console.log(error)
+            res.status(500).json({ error: "There was an error while saving the post to the database" })
+        })
+})
 
 // put (/api/posts/:id) updates the post with the specified id using data from the request body. 
 // Returns modified document, not the original.
+
+
+// delete (/api/posts/:id) removes the post with the specified id and returns the deleted post object
+
+module.exports = router;
