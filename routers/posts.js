@@ -68,7 +68,28 @@ router.post("/", (req, res) => {
 
 // put (/api/posts/:id) updates the post with the specified id using data from the request body. 
 // Returns modified document, not the original.
+router.put("/:id", async (req, res) => {
+    const id = req.params.id;
+    const { title, contents } = req.body;
+    
+    if(!title || !contents) {
+        res.status(404).json({ message: "Please provide title and contents for the post." })
+    }
 
+    try {
+        const post = await db.findById(id)
+
+        if(!post) {
+            return res.status(404).json({ error: "The post with the specified ID does not exist" })
+        }
+
+        await db.update(id, { title, contents })
+        res.status(200).json(post)
+        
+        } catch(err) {
+            res.status(500).json({ error: "The post information could not be modified" })
+    }
+})
 
 // delete (/api/posts/:id) removes the post with the specified id and returns the deleted post object
 
