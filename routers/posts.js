@@ -1,5 +1,5 @@
 const express = require("express")
-const db = require("../data/db");
+let db = require("../data/db");
 const router = express.Router({
     mergeParams: true,
 })
@@ -92,5 +92,19 @@ router.put("/:id", async (req, res) => {
 })
 
 // delete (/api/posts/:id) removes the post with the specified id and returns the deleted post object
+router.delete("/:id", (req, res) => {
+    db.remove(req.params.id)
+      .then(count => {
+        if (count > 0) {
+          res.status(200).json({ message: "The post has been deleted succesfully" })
+        } else {
+          res.status(404).json({ message: "The post with the specified ID does not exist." })
+        }
+      })
+      .catch(error => {
+        console.log(error)
+        res.status(500).json({ error: "The post could not be removed" })
+      })
+  })
 
 module.exports = router;
