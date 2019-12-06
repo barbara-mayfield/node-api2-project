@@ -53,37 +53,35 @@ router.get("/:commentId", (req, res) => {
 
 // post (/api/posts/:id/comments) creates a comment for the post with the specified id using the infromation sent inside of the request
 
-router.post("/:id/comments", (req, res) => {
+router.post("/", (req, res) => {
+    const comment = req.body;
     const id = req.params.id;
-    const text = req.body.text;
+    console.log(comment)
 
-    const newComment = {
-        text: req.body.text
+    if (!comment.text) {
+      res.status(400).json({ errorMessage: 'Please provide text for the comment.'})
+    } else {
+
+        const newComment = {
+            text: req.body.text,
+            post_id: id
+        }
+
+      db.insertComment(newComment)
+      .then(comment => {
+        if (comment) {
+          res.status(201).json(newComment)
+        } else {
+          res.status(404).json({ errorMessage: 'The post with the specified ID does not exist.' })
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({
+          errorMessage: 'There was an error while saving the comment to the database'
+        })
+      })
     }
-
-    if(!text) {
-        res.status(400).json({ errorMessage: "Please provide text for the comment."})
-    } 
-
-    db.findById(id)
-        .then(post => {
-            if(!post) {
-                res.status(404).json({ message: "The post with the specified ID does not exist." })
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({ error: "The post information could not be retrieved." })
-        })
-
-        db.insertComment(newComment)
-        .then(newComment => {
-            res.status(201).json(newComment)
-        .catch(err => {
-            console.log(error)
-            res.status(500).json({ error: "There was an error while saving the comment to the database" })
-        })
-    })
-});
+  })
 
 module.exports = router;
